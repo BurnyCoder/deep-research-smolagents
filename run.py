@@ -171,6 +171,11 @@ def main():
     text_webbrowser_system_prompt = CODE_SYSTEM_PROMPT + """Make sure to ALWAYS:
     - Use the DuckDuckGo search tool to search for relevant web content.
     - Use the extract_website_info tool to extract information from a website.
+    - Search and crawl as many relevant web pages as possible to gather comprehensive information.
+    - When searching, try multiple related search queries to find different perspectives and sources.
+    - For each relevant search result, make sure to extract the full webpage content.
+    - Cross-reference information from multiple sources to provide complete and accurate answers.
+    - Don't stop at just 1-2 sources - aim to gather information from at least 3-5 different relevant webpages.
     - Make sure to ALWAYS return source URLs in your answer!
     """
     
