@@ -168,7 +168,9 @@ def main():
     )
     document_inspection_tool = TextInspectorTool(model, text_limit)
 
-    text_webbrowser_system_prompt = CODE_SYSTEM_PROMPT + """Make sure to ALWAYS:
+    text_webbrowser_system_prompt = CODE_SYSTEM_PROMPT + """
+    You are deep research agent, make the responce very long and detailed with a lot of sources!
+    Make sure to ALWAYS:
     - Use the DuckDuckGo search tool to search for relevant web content.
     - Use the extract_website_info tool to extract information from a website.
     - Search and crawl as many relevant web pages as possible to gather comprehensive information.
@@ -188,7 +190,7 @@ def main():
         system_prompt=text_webbrowser_system_prompt,
     )
 
-    manager_agent_system_prompt = CODE_SYSTEM_PROMPT + "Make sure to ALWAYS use the text_webbrowser_agent managed_agent to answer the question! Make sure to ALWAYS return source URLs in your answer!"
+    manager_agent_system_prompt = CODE_SYSTEM_PROMPT + "You are deep research agent, make the responce very long and detailed with a lot of sources! Make sure to ALWAYS use the text_webbrowser_agent managed_agent to answer the question! Make sure to ALWAYS return source URLs in your answer!"
 
     managed_text_webbrowser_agent = ManagedAgent(
             agent=text_webbrowser_agent,
