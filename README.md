@@ -2,7 +2,7 @@
 
 Edited huggingface https://huggingface.co/blog/open-deep-research .
 
-This agent achieves 55% pass@1 on GAIA validation set, vs 67% for Deep Research.
+This agent achieves 55% pass@1 on GAIA validation set, vs 67% for OpenAI Deep Research.
 
 To install it, first run
 ```bash
