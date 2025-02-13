@@ -1,8 +1,6 @@
 # Open Deep Research
 
-Welcome to this open replication of [OpenAI's Deep Research](https://openai.com/index/introducing-deep-research/)!
-
-Read more about this implementation's goal and methods [in our blog post](https://huggingface.co/blog/open-deep-research).
+Edited huggingface https://huggingface.co/blog/open-deep-research .
 
 This agent achieves 55% pass@1 on GAIA validation set, vs 67% for Deep Research.
 
