@@ -1,3 +1,4 @@
+import requests
 import argparse
 import os
 import threading
@@ -5,18 +6,9 @@ import threading
 from dotenv import load_dotenv
 from huggingface_hub import login
 from scripts.text_inspector_tool import TextInspectorTool
-from scripts.text_web_browser import (
-    ArchiveSearchTool,
-    FinderTool,
-    FindNextTool,
-    PageDownTool,
-    PageUpTool,
-    SearchInformationTool,
-    SimpleTextBrowser,
-    VisitTool,
-)
 from scripts.visual_qa import visualizer
 from smolagents_portkey_support import PortkeyModel
+from firecrawl import FirecrawlApp
 
 from smolagents import (
     CodeAgent,
@@ -24,9 +16,17 @@ from smolagents import (
     LiteLLMModel,
     ToolCallingAgent,
     ManagedAgent,
+    DuckDuckGoSearchTool
 )
 
 from smolagents.prompts import CODE_SYSTEM_PROMPT
+
+from smolagents import CodeAgent, DuckDuckGoSearchTool, LiteLLMModel, tool
+from litellm import completion
+import os
+from firecrawl import FirecrawlApp
+from pydantic import BaseModel
+from typing import Any, Optional, List
 
 
 AUTHORIZED_IMPORTS = [
@@ -90,17 +90,76 @@ BROWSER_CONFIG = {
 
 os.makedirs(f"./{BROWSER_CONFIG['downloads_folder']}", exist_ok=True)
 
+@tool
+def extract_website_info(url: str) -> str:
+    """A tool for extracting specific information from websites using Firecrawl.
+    
+    This tool uses Firecrawl to crawl websites.
+    
+    Args:
+        url: The website URL or domain pattern (e.g., "example.com") to crawl
+            
+    Returns:
+        str: The extracted information formatted as a string
+    """
+    try:
+        # Initialize Firecrawl client
+        app = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
+        data = app.scrape_url(url=url, params={
+            'formats': ['markdown'],
+        })
+        return str(data)
+    except Exception as e:
+        # Fallback to basic requests.get if Firecrawl fails
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text
+
+# @tool
+# def ask_perplexity_tool(prompt: str) -> str:
+#     """A tool for making queries to Perplexity AI's LLM through LiteLLM integration.
+    
+#     This tool provides an interface to query Perplexity AI's language models. The actual API
+#     call is handled internally by LiteLLM, which manages the authentication, request
+#     formatting, and response parsing.
+    
+#     Args:
+#         prompt: The prompt to send to Perplexity's model.
+#             Should be a clear, well-formed query in natural language.
+            
+#     Returns:
+#         str: The model's response to the prompt. The response will be in natural language text.
+    
+#     """
+#     messages = [
+#         {
+#             "role": "system",
+#             "content": (
+#                 "You are an artificial intelligence assistant and you need to "
+#                 "engage in a helpful, detailed, polite conversation with a user."
+#             ),
+#         },
+#         {   
+#             "role": "user",
+#             "content": prompt,
+#         },
+#     ]
+    
+    
+#     response = completion(
+#         model="perplexity/sonar-reasoning-pro",
+#         messages=messages,
+#         api_base="https://api.perplexity.ai",
+#         api_key=os.environ["PERPLEXITY_API_KEY"]
+#     )
+    
+#     return response.choices[0].message.content
+
 
 def main():
     args = parse_args()
     text_limit = 100000
 
-    # model = LiteLLMModel(
-    #     args.model_id,
-    #     custom_role_conversions=custom_role_conversions,
-    #     max_completion_tokens=8192,
-    #     reasoning_effort="high",
-    # )
     model = PortkeyModel(
         args.model_id,
         max_completion_tokens=8192,
@@ -109,34 +168,22 @@ def main():
     )
     document_inspection_tool = TextInspectorTool(model, text_limit)
 
-    browser = SimpleTextBrowser(**BROWSER_CONFIG)
-
-    WEB_TOOLS = [
-        SearchInformationTool(browser),
-        VisitTool(browser),
-        PageUpTool(browser),
-        PageDownTool(browser),
-        FinderTool(browser),
-        FindNextTool(browser),
-        ArchiveSearchTool(browser),
-        TextInspectorTool(model, text_limit),
-    ]
-
-    text_webbrowser_system_prompt = CODE_SYSTEM_PROMPT + """Make sure to ALWAYS use the WEB_TOOLS to answer the question! You can navigate to .txt online files.
-    If a non-html page is in another format, especially .pdf or a Youtube video, use tool 'inspect_file_as_text' to inspect it.
-    Additionally, if after some searching you find out that you need more information to answer the question, you can use `final_answer` with your request for clarification as argument to request for more information."""
+    text_webbrowser_system_prompt = CODE_SYSTEM_PROMPT + """Make sure to ALWAYS:
+    - Use the DuckDuckGo search tool to search for relevant web content.
+    - Use the extract_website_info tool to extract information from a website.
+    - Make sure to ALWAYS return source URLs in your answer!
+    """
     
     text_webbrowser_agent = ToolCallingAgent(
         model=model,
-        tools=WEB_TOOLS,
+        tools=[extract_website_info, DuckDuckGoSearchTool()],
         max_steps=20,
         verbosity_level=2,
         planning_interval=4,
         system_prompt=text_webbrowser_system_prompt,
-        #provide_run_summary=True,
     )
 
-    manager_agent_system_prompt = CODE_SYSTEM_PROMPT + "Make sure to ALWAYS use the text_webbrowser_agent managed_agent to answer the question!"
+    manager_agent_system_prompt = CODE_SYSTEM_PROMPT + "Make sure to ALWAYS use the text_webbrowser_agent managed_agent to answer the question! Make sure to ALWAYS return source URLs in your answer!"
 
     managed_text_webbrowser_agent = ManagedAgent(
             agent=text_webbrowser_agent,
