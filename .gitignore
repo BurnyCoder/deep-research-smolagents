@@ -3,6 +3,9 @@ ai_playground/
 openrouter_models.txt
 sample_chatbot_app/
 
+downloads/
+downloads_folder/
+
 env
 .env
 playground
