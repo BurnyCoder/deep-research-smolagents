@@ -63,7 +63,7 @@ def parse_args():
         default="What is the best AI agent building practices?",
         help="for example: 'How many studio albums did Mercedes Sosa release before 2007?'"
     )
-    parser.add_argument("--model-id", type=str, default="claude-3-5-sonnet-latest")
+    parser.add_argument("--model-id", type=str, default="o3-mini")
     return parser.parse_args()
 
 
