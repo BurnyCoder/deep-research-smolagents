@@ -37,3 +37,20 @@ or
 ```bash
 python run_firecrawl.py --model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
 ```
+
+For the deep research ts agent, you need to install the deep research implementation first:
+```bash
+cd deep-research-ts
+npm install
+cd ..
+```
+
+Then you can run the smolagents deep research agent with the deep research ts agent as a tool:
+```bash
+python run_deep_research.py --model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
+```
+
+Or you can run the deep research ts agent on its own with the following command:
+```bash
+python deep_research_ts/run.py
+```
