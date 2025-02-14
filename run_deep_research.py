@@ -1,3 +1,5 @@
+import subprocess
+import json
 import argparse
 import os
 import threading
@@ -14,7 +16,8 @@ from smolagents import (
     LiteLLMModel,
     ToolCallingAgent,
     ManagedAgent,
-    tool
+    tool,
+    Tool
 )
 from smolagents_portkey_support import PortkeyModel
 from run_deep_research_ts import research_topic
@@ -80,83 +83,81 @@ custom_role_conversions = {"tool-call": "assistant", "tool-response": "user"}
 #     """
 #     return "This is a test"
 
-@tool
-def research_tool(query: str, breadth: int, depth: int) -> Dict[str, Any]:
-    """Perform deep research on a given topic by searching and analyzing multiple web sources.
+class ResearchTool(Tool):
+    name = "research_tool"
+    description = "Perform deep research on a given topic by searching and analyzing multiple web sources."
+    inputs = {
+        "query": {
+            "type": "string",
+            "description": "The research query or topic to investigate"
+        },
+        "breadth": {
+            "type": "integer",
+            "description": "Number of parallel search paths to explore (2-5 recommended)"
+        },
+        "depth": {
+            "type": "integer",
+            "description": "How deep to follow each search path (2-5 recommended)"
+        }
+    }
+    output_type = "object"
 
-    This tool uses web search and analysis to gather comprehensive information about a topic.
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.process = None
+        self.output_buffer = []
 
-    Args:
-        query: The research query or topic to investigate. This should be a specific question
-            or topic you want to research deeply. 
-        breadth: Number of parallel search paths to explore. Controls how many different
-            aspects of the topic are investigated. Recommended 2-5.
-        depth: How deep to follow each search path. Controls how thoroughly each
-            subtopic is explored. Recommended 2-5.
+    def forward(self, query: str, breadth: int, depth: int) -> Dict[str, Any]:
+        breadth = 2
+        depth = 2
+        # Prepare environment variables
+        env = os.environ.copy()
 
-    Returns:
-        Dict[str, Any]: A dictionary containing:
-            - Research results and findings
-            - List of visited URLs and sources
-            - Additional metadata about the research process
-
-    Raises:
-        FileNotFoundError: If required environment configuration is missing
-        subprocess.CalledProcessError: If the TypeScript research process fails
-    """
-    import subprocess
-    import os
-    import json
-    from typing import Dict, Any
-
-    # Prepare environment variables
-    env = os.environ.copy()
-
-    # Format the command with arguments
-    command = f'"{query}" {breadth} {depth}'
-    
-    try:
-        # Call the TypeScript project and wait for complete output
-        process = subprocess.Popen(
-            ['npm', 'start', command],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=env,
-            text=True,
-            bufsize=1,
-            universal_newlines=True
-        )
+        # Format the command with arguments
+        command = f'"{query}" {breadth} {depth}'
         
-        # Collect all output
-        full_output = []
-        while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                full_output.append(output.strip())
-                print(output.strip())  # Optional: Print output in real-time
-        
-        # Wait for the process to complete and get return code
-        return_code = process.wait()
-        
-        if return_code != 0:
-            stderr = process.stderr.read()
-            raise subprocess.CalledProcessError(return_code, ['npm', 'start', command], stderr=stderr)
-        
-        # Join all output lines and return as a dictionary
-        complete_output = '\n'.join(full_output)
         try:
-            # Try to parse as JSON if the output is in JSON format
-            return json.loads(complete_output)
-        except json.JSONDecodeError:
-            # If not JSON, return as string in a dictionary
-            return {"output": complete_output}
+            # Call the TypeScript project and wait for complete output
+            process = subprocess.Popen(
+                ['npm', 'start', command],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=env,
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
             
-    except subprocess.CalledProcessError as e:
-        print(f"Error running research: {e}")
-        print(f"stderr: {e.stderr}")
-        return {"error": str(e), "stderr": e.stderr}
+            # Collect all output
+            full_output = []
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    full_output.append(output.strip())
+                    print(output.strip())  # Optional: Print output in real-time
+            
+            # Wait for the process to complete and get return code
+            return_code = process.wait()
+            
+            if return_code != 0:
+                stderr = process.stderr.read()
+                raise subprocess.CalledProcessError(return_code, ['npm', 'start', command], stderr=stderr)
+            
+            # Join all output lines and return as a dictionary
+            complete_output = '\n'.join(full_output)
+            try:
+                # Try to parse as JSON if the output is in JSON format
+                return json.loads(complete_output)
+            except json.JSONDecodeError:
+                # If not JSON, return as string in a dictionary
+                return {"output": complete_output}
+                
+        except subprocess.CalledProcessError as e:
+            print(f"Error running research: {e}")
+            print(f"stderr: {e.stderr}")
+            return {"error": str(e), "stderr": e.stderr}
 
 def main():
     args = parse_args()
@@ -180,12 +181,14 @@ def main():
     - Make sure to ALWAYS return source URLs in your answer!
     """
 
+    # Initialize the research tool
+    research_tool = ResearchTool()
+
     manager_agent = ToolCallingAgent(
         model=model,
         tools=[research_tool],
         max_steps=12,
         verbosity_level=2,
-        #additional_authorized_imports=AUTHORIZED_IMPORTS,
         planning_interval=4,
         system_prompt=manager_agent_system_prompt
     )
