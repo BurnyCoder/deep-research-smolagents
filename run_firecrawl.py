@@ -205,7 +205,7 @@ def main():
     
     manager_agent = CodeAgent(
         model=model,
-        tools=[visualizer, document_inspection_tool],
+        tools=[],#[visualizer, document_inspection_tool],
         max_steps=12,
         verbosity_level=2,
         additional_authorized_imports=AUTHORIZED_IMPORTS,
