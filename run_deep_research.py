@@ -177,20 +177,22 @@ def main():
     - Make the response very long and detailed with a lot of sources!
     - Search multiple related queries to find different perspectives and sources!
     - Cross-reference information from multiple sources to provide complete and accurate answers!
-    - Don't stop at just 1-2 sources - aim to gather information from at least 3-5 different relevant webpages!
+    - Don't stop at just 1-2 reseach_tool calls - aim to call it as many times as needed, minimum 2 times! In one code block you can call the research_tool as many times as needed, minimum 2 times!
     - Make sure to ALWAYS return source URLs in your answer!
+    - Retain and include all relevant information provided by the tool in your answer!
     """
 
     # Initialize the research tool
     research_tool = ResearchTool()
 
-    manager_agent = ToolCallingAgent(
+    manager_agent = CodeAgent(
         model=model,
         tools=[research_tool],
         max_steps=12,
         verbosity_level=2,
         planning_interval=4,
-        system_prompt=manager_agent_system_prompt
+        system_prompt=manager_agent_system_prompt,
+        additional_authorized_imports=AUTHORIZED_IMPORTS
     )
 
     answer = manager_agent.run(args.question)

@@ -1,3 +1,13 @@
+import subprocess
+import os
+import json
+from typing import Dict, Any
+
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 def research_topic(query: str, breadth: int = 4, depth: int = 2) -> dict:
     """
     Perform deep research on a given topic.
@@ -14,11 +24,6 @@ def research_topic(query: str, breadth: int = 4, depth: int = 2) -> dict:
         FileNotFoundError: If environment file is missing
         subprocess.CalledProcessError: If TypeScript process fails
     """
-    import subprocess
-    import os
-    import json
-    from typing import Dict, Any
-
     # Prepare environment variables
     env = os.environ.copy()
 
