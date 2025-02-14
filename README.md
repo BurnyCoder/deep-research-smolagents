@@ -1,6 +1,6 @@
 # Open Deep Research
 
-This is a fork of the huggingface Open Deep Research Agent. https://huggingface.co/blog/open-deep-research 
+This is edited fork of the huggingface Open Deep Research Agent. https://huggingface.co/blog/open-deep-research 
 
 This agent achieves 55% pass@1 on GAIA validation set, vs 67% for OpenAI Deep Research.
 
