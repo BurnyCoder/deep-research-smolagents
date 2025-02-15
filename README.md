@@ -8,6 +8,7 @@ This agent achieves 55% pass@1 on GAIA validation set, vs 67% for OpenAI Deep Re
 
 Create a `.env` file in the root directory with the following variables. You can use the `.envtemplate` file as a reference.
 
+```bash
 HF_TOKEN=your_huggingface_token
 SERPAPI_API_KEY=your_serpapi_key
 OPENAI_API_KEY=your_openai_key
@@ -19,6 +20,7 @@ PORTKEY_VIRTUAL_KEY_ANTHROPIC=your_anthropic_virtual_key
 PORTKEY_VIRTUAL_KEY_OPENAI=your_openai_virtual_key
 PORTKEY_VIRTUAL_KEY_GOOGLE=your_google_virtual_key
 OPENAI_MODEL="o3-mini"
+```
 
 ## Installation
 
