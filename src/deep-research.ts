@@ -1,10 +1,10 @@
 import FirecrawlApp, { SearchResponse } from '@mendable/firecrawl-js';
-import { generateObject } from 'ai';
 import { compact } from 'lodash-es';
 import pLimit from 'p-limit';
 import { z } from 'zod';
 
 import { o3MiniModel, trimPrompt } from './ai/providers';
+import { generateStructuredOutput } from './ai/structured-output';
 import { systemPrompt } from './prompt';
 import { OutputManager } from './output-manager';
 
@@ -49,20 +49,22 @@ async function generateSerpQueries({
 }: {
   query: string;
   numQueries?: number;
-
-  // optional, if provided, the research will continue from the last learning
   learnings?: string[];
 }) {
-  const res = await generateObject({
+  const res = await generateStructuredOutput({
     model: o3MiniModel,
     system: systemPrompt(),
-    prompt: `Given the following prompt from the user, generate a list of SERP queries to research the topic. Return a maximum of ${numQueries} queries, but feel free to return less if the original prompt is clear. Make sure each query is unique and not similar to each other: <prompt>${query}</prompt>\n\n${
-      learnings
-        ? `Here are some learnings from previous research, use them to generate more specific queries: ${learnings.join(
-            '\n',
-          )}`
-        : ''
-    }`,
+    prompt: `Given the following prompt from the user, generate a list of SERP queries to research the topic. Return a maximum of ${numQueries} queries, but feel free to return less if the original prompt is clear.
+
+For each query, you MUST provide:
+1. A 'query' field with the actual search query
+2. A 'researchGoal' field that explains the goal and future research directions
+
+Make sure each query is unique and not similar to each other.
+
+User prompt: <prompt>${query}</prompt>
+
+${learnings ? `Here are some learnings from previous research, use them to generate more specific queries: ${learnings.join('\n')}` : ''}`,
     schema: z.object({
       queries: z
         .array(
@@ -102,7 +104,7 @@ async function processSerpResult({
   );
   log(`Ran ${query}, found ${contents.length} contents`);
 
-  const res = await generateObject({
+  const res = await generateStructuredOutput({
     model: o3MiniModel,
     abortSignal: AbortSignal.timeout(60_000),
     system: systemPrompt(),
@@ -144,7 +146,7 @@ export async function writeFinalReport({
     150_000,
   );
 
-  const res = await generateObject({
+  const res = await generateStructuredOutput({
     model: o3MiniModel,
     system: systemPrompt(),
     prompt: `Given the following prompt from the user, write a final report on the topic using the learnings from research. Make it as as detailed as possible, aim for 3 or more pages, include ALL the learnings from research:\n\n<prompt>${prompt}</prompt>\n\nHere are all the learnings from previous research:\n\n<learnings>\n${learningsString}\n</learnings>`,
