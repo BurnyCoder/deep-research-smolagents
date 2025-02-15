@@ -1,32 +1,62 @@
-import { createOpenAI, type OpenAIProviderSettings } from '@ai-sdk/openai';
 import { getEncoding } from 'js-tiktoken';
-
 import { RecursiveCharacterTextSplitter } from './text-splitter';
+import fetch from 'node-fetch';
 
-interface CustomOpenAIProviderSettings extends OpenAIProviderSettings {
-  baseURL?: string;
-  headers?: Record<string, string>;
+interface PortkeyResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: {
+    index: number;
+    message: {
+      role: string;
+      content: string;
+      refusal: null | string;
+    };
+    finish_reason: string;
+  }[];
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
 
-// Providers
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_KEY!,
-  baseURL: process.env.OPENAI_ENDPOINT || 'https://api.portkey.ai/v1',
-  headers: {
-    'x-portkey-api-key': process.env.PORTKEY_API_KEY!,
-    'x-portkey-virtual-key': process.env.PORTKEY_VIRTUAL_KEY!,
-    'x-portkey-provider': 'openai',
-  },
-} as CustomOpenAIProviderSettings);
+interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
 
-const customModel = process.env.OPENAI_MODEL || 'o3-mini';
+export async function callPortkeyAPI(messages: ChatMessage[], options: { reasoningEffort?: string; structuredOutputs?: boolean } = {}) {
+  const response = await fetch('https://api.portkey.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-portkey-api-key': process.env.PORTKEY_API_KEY!,
+      'x-portkey-virtual-key': process.env.PORTKEY_VIRTUAL_KEY_OPENAI!,
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || 'o3-mini',
+      messages,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Portkey API error: ${response.statusText}`);
+  }
+
+  const data: PortkeyResponse = await response.json();
+  return data.choices[0]?.message?.content || '';
+}
 
 // Models
-
-export const o3MiniModel = openai(customModel, {
-  reasoningEffort: customModel.startsWith('o') ? 'medium' : undefined,
-  structuredOutputs: true,
-});
+export const o3MiniModel = async (prompt: string, options: { reasoningEffort?: string; structuredOutputs?: boolean } = {}) => {
+  const messages: ChatMessage[] = [
+    { role: 'user', content: prompt }
+  ];
+  return callPortkeyAPI(messages, options);
+};
 
 const MinChunkSize = 140;
 const encoder = getEncoding('o200k_base');
