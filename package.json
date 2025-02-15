@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "index.ts",
   "scripts": {
-    "start": "tsx --env-file=.env.local src/run.ts",
+    "start": "tsx --env-file=.env src/run.ts",
     "docker": "tsx src/run.ts"
   },
   "author": "",

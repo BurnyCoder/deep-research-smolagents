@@ -1,6 +1,7 @@
 import subprocess
 import os
 import json
+import argparse
 from typing import Dict, Any
 
 from dotenv import load_dotenv
@@ -24,6 +25,7 @@ def research_topic(query: str, breadth: int = 4, depth: int = 2) -> dict:
         FileNotFoundError: If environment file is missing
         subprocess.CalledProcessError: If TypeScript process fails
     """
+    
     # Prepare environment variables
     env = os.environ.copy()
 
@@ -73,14 +75,21 @@ def research_topic(query: str, breadth: int = 4, depth: int = 2) -> dict:
         print(f"stderr: {e.stderr}")
         return {"error": str(e), "stderr": e.stderr}
 
-# Example usage:
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "question",
+        type=str,
+        nargs='?',
+        default="What is the best AI agent building practices?",
+        help="Research query/topic"
+    )
+    parser.add_argument("--model-id", type=str, default="o3-mini")
+    parser.add_argument("--b", type=int, default=4, help="Research breadth (3-10)")
+    parser.add_argument("--d", type=int, default=2, help="Research depth (1-5)")
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    try:
-        results = research_topic(
-            query="Best practices for Ai tool calling?",
-            breadth=2,
-            depth=2
-        )
-        print("Research Results:", results)
-    except Exception as e:
-        print(f"Research failed: {e}")
+    args = parse_args()
+    results = research_topic(args.question, args.b, args.d)
+    print(json.dumps(results, indent=2))
