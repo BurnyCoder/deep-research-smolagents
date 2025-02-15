@@ -22,6 +22,19 @@ from smolagents import (
 from smolagents_portkey_support import PortkeyModel
 from run_deep_research_ts import research_topic
 
+# Get environment variables
+hf_token = os.getenv('HF_TOKEN')
+firecrawl_key = os.getenv('FIRECRAWL_KEY')
+context_size = os.getenv('CONTEXT_SIZE')
+openai_model = os.getenv('OPENAI_MODEL')
+portkey_api_base = os.getenv('PORTKEY_API_BASE')
+portkey_api_key = os.getenv('PORTKEY_API_KEY')
+portkey_virtual_key_groq = os.getenv('PORTKEY_VIRTUAL_KEY_GROQ')
+portkey_virtual_key_anthropic = os.getenv('PORTKEY_VIRTUAL_KEY_ANTHROPIC')
+portkey_virtual_key_openai = os.getenv('PORTKEY_VIRTUAL_KEY_OPENAI')
+portkey_virtual_key_google = os.getenv('PORTKEY_VIRTUAL_KEY_GOOGLE')
+serpapi_api_key = os.getenv('SERPAPI_API_KEY')
+
 AUTHORIZED_IMPORTS = [
     "requests",
     "zipfile",
@@ -110,16 +123,41 @@ class ResearchTool(Tool):
     def forward(self, query: str, breadth: int, depth: int) -> Dict[str, Any]:
         breadth = 2
         depth = 2
-        # Prepare environment variables
-        env = os.environ.copy()
+            
+        # Get environment variables
+        hf_token = os.getenv('HF_TOKEN')
+        firecrawl_key = os.getenv('FIRECRAWL_KEY')
+        context_size = os.getenv('CONTEXT_SIZE')
+        openai_model = os.getenv('OPENAI_MODEL')
+        portkey_api_base = os.getenv('PORTKEY_API_BASE')
+        portkey_api_key = os.getenv('PORTKEY_API_KEY')
+        portkey_virtual_key_groq = os.getenv('PORTKEY_VIRTUAL_KEY_GROQ')
+        portkey_virtual_key_anthropic = os.getenv('PORTKEY_VIRTUAL_KEY_ANTHROPIC')
+        portkey_virtual_key_openai = os.getenv('PORTKEY_VIRTUAL_KEY_OPENAI')
+        portkey_virtual_key_google = os.getenv('PORTKEY_VIRTUAL_KEY_GOOGLE')
+        serpapi_api_key = os.getenv('SERPAPI_API_KEY')
 
-        # Format the command with arguments
-        command = f'"{query}" {breadth} {depth}'
-        
+        # Prepare environment variables
+        env = {
+            'HF_TOKEN': hf_token,
+            'FIRECRAWL_KEY': firecrawl_key,
+            'CONTEXT_SIZE': context_size,
+            'OPENAI_MODEL': openai_model,
+            'PORTKEY_API_BASE': portkey_api_base,
+            'PORTKEY_API_KEY': portkey_api_key,
+            'PORTKEY_VIRTUAL_KEY_GROQ': portkey_virtual_key_groq,
+            'PORTKEY_VIRTUAL_KEY_ANTHROPIC': portkey_virtual_key_anthropic,
+            'PORTKEY_VIRTUAL_KEY_OPENAI': portkey_virtual_key_openai,
+            'PORTKEY_VIRTUAL_KEY_GOOGLE': portkey_virtual_key_google,
+            'SERPAPI_API_KEY': serpapi_api_key,
+            'PATH': os.environ.get('PATH', '')  # Include PATH from current environment
+        }
+
+        # Format the command arguments
         try:
-            # Call the TypeScript project and wait for complete output
+            # Call tsx directly instead of using npm start
             process = subprocess.Popen(
-                ['npm', 'start', command],
+                ['tsx', '--env-file=.env', 'src/run.ts', query, str(breadth), str(depth)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=env,
@@ -143,7 +181,7 @@ class ResearchTool(Tool):
             
             if return_code != 0:
                 stderr = process.stderr.read()
-                raise subprocess.CalledProcessError(return_code, ['npm', 'start', command], stderr=stderr)
+                raise subprocess.CalledProcessError(return_code, ['tsx', '--env-file=.env', 'src/run.ts', query, str(breadth), str(depth)], stderr=stderr)
             
             # Join all output lines and return as a dictionary
             complete_output = '\n'.join(full_output)
@@ -158,6 +196,20 @@ class ResearchTool(Tool):
             print(f"Error running research: {e}")
             print(f"stderr: {e.stderr}")
             return {"error": str(e), "stderr": e.stderr}
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "question",
+        type=str,
+        nargs='?',
+        default="What is the best AI agent building practices?",
+        help="Research query/topic"
+    )
+    parser.add_argument("--model-id", type=str, default="o3-mini")
+    parser.add_argument("--b", type=int, default=4, help="Research breadth (3-10)")
+    parser.add_argument("--d", type=int, default=2, help="Research depth (1-5)")
+    return parser.parse_args()
 
 def main():
     args = parse_args()
@@ -174,7 +226,8 @@ def main():
     You are deep research agent. You are given a question and you need to generate a detailed answer with a lot of sources.
     You have to to:
     - Use the research_tool to perform deep research on topics!
-    - Make the response very long and detailed with a lot of sources!
+    - For general, broad questions: provide comprehensive overview answers that cover multiple aspects and perspectives of the topic with extensive sources
+    - For specific, concrete questions: provide focused, precise answers that directly address the exact question with relevant sources
     - Search multiple related queries to find different perspectives and sources!
     - Cross-reference information from multiple sources to provide complete and accurate answers!
     - Don't stop at just 1-2 reseach_tool calls - aim to call it as many times as needed, minimum 2 times! In one code block you can call the research_tool as many times as needed, minimum 2 times!
