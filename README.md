@@ -2,8 +2,6 @@
 
 This is edited version of Hugginface's Open Deep Research Agent https://huggingface.co/blog/open-deep-research and dzhng's Deep Research agent https://github.com/dzhng/deep-research combined into one agent.
 
-This agent achieves 55% pass@1 on GAIA validation set, vs 67% for OpenAI Deep Research.
-
 ## Environment Variables
 
 Create a `.env` file in the root directory with the following variables. You can use the `.envtemplate` file as a reference.
