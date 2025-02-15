@@ -18,6 +18,7 @@ PORTKEY_VIRTUAL_KEY_ANTHROPIC=your_anthropic_virtual_key
 PORTKEY_VIRTUAL_KEY_OPENAI=your_openai_virtual_key
 PORTKEY_VIRTUAL_KEY_GOOGLE=your_google_virtual_key
 OPENAI_MODEL="o3-mini"
+MANAGER_AGENT_SYSTEM_PROMPT=system_prompt_here
 ```
 
 ## Installation

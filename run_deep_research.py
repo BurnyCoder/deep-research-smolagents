@@ -221,8 +221,7 @@ def main():
         custom_role_conversions=custom_role_conversions,
         reasoning_effort="high",
     )
-
-    manager_agent_system_prompt = CODE_SYSTEM_PROMPT + """
+    manager_agent_system_prompt = os.getenv('MANAGER_AGENT_SYSTEM_PROMPT', """
     You are deep research agent. You are given a question and you need to generate a detailed answer with a lot of sources.
     You have to to:
     - Use the research_tool to perform deep research on topics!
@@ -233,8 +232,12 @@ def main():
     - Don't stop at just 1-2 reseach_tool calls - aim to call it as many times as needed, minimum 2 times! In one code block you can call the research_tool as many times as needed, minimum 2 times!
     - Make sure to ALWAYS return source URLs in your answer!
     - Retain and include all relevant information provided by the tool in your answer!
-    """
-
+    """)
+        
+    #print(manager_agent_system_prompt)
+    
+    manager_agent_system_prompt = CODE_SYSTEM_PROMPT + manager_agent_system_prompt
+    
     # Initialize the research tool
     research_tool = ResearchTool()
 
