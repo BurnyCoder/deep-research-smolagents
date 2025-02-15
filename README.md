@@ -1,13 +1,13 @@
 # Open Deep Research
 
-This is edited fork of the huggingface Open Deep Research Agent. https://huggingface.co/blog/open-deep-research 
+This is edited fork of the huggingface Open Deep Research Agent. https://huggingface.co/blog/open-deep-research and https://github.com/dzhng/deep-research 
 
 This agent achieves 55% pass@1 on GAIA validation set, vs 67% for OpenAI Deep Research.
 
 ## Environment Variables
 
-Create a `.env` file in the root directory with the following variables, using the ones from the .envtemplate file.
-```bash
+Create a `.env` file in the root directory with the following variables. You can use the `.envtemplate` file as a reference.
+
 HF_TOKEN=your_huggingface_token
 SERPAPI_API_KEY=your_serpapi_key
 OPENAI_API_KEY=your_openai_key
@@ -19,10 +19,22 @@ PORTKEY_VIRTUAL_KEY_ANTHROPIC=your_anthropic_virtual_key
 PORTKEY_VIRTUAL_KEY_OPENAI=your_openai_virtual_key
 PORTKEY_VIRTUAL_KEY_GOOGLE=your_google_virtual_key
 OPENAI_MODEL="o3-mini"
-```
 
 ## Installation
 
+Clone the repository:
+```bash
+git clone https://github.com/BurnyCoder/deep-research-smolagents
+cd deep-research-smolagents
+```
+
+Optionally create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
 ```bash
 pip install -r requirements.txt
 npm install
