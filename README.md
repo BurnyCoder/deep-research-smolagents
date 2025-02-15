@@ -50,7 +50,7 @@ To run smolagents agent with deep research ts agent:
 python run_deep_research.py --model-id "o3-mini" "Best practices to build AI agents"
 ```
 
-To run deep research ts agent on its own with the following command:
+To run deep research ts agent on its own:
 ```bash
 python run_deep_research_ts.py "Best practices to build AI agents" --model-id "o3-mini" --b 2 --d 2
 ```
