@@ -60,9 +60,16 @@ append_answer_lock = threading.Lock()
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "question", type=str, help="for example: 'How many studio albums did Mercedes Sosa release before 2007?'"
+        "question",
+        type=str,
+        nargs='?',
+        default=None,
+        help="Research query/topic"
     )
-    parser.add_argument("--model-id", type=str, default="o1")
+    parser.add_argument("--model-id", type=str, default="o3-mini")
+    parser.add_argument("--b", type=int, default=2, help="Research breadth (3-10)")
+    parser.add_argument("--d", type=int, default=2, help="Research depth (1-5)")
+    parser.add_argument("--questions", action="store_true", help="Enable clarifying questions")
     return parser.parse_args()
 
 

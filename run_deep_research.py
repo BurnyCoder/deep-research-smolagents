@@ -17,7 +17,6 @@ from smolagents_portkey_support import PortkeyModel
 from portkey_api import o3minihigh
 from run_deep_research_ts import research_topic
 # Get environment variables
-hf_token = os.getenv('HF_TOKEN')
 firecrawl_key = os.getenv('FIRECRAWL_KEY')
 context_size = os.getenv('CONTEXT_SIZE')
 openai_model = os.getenv('OPENAI_MODEL')
@@ -51,7 +50,6 @@ AUTHORIZED_IMPORTS = [
     "csv",
 ]
 load_dotenv(override=True)
-login(os.getenv("HF_TOKEN"))
 
 append_answer_lock = threading.Lock()
 
@@ -179,24 +177,27 @@ def main():
     
     manager_agent_system_prompt = CODE_SYSTEM_PROMPT + manager_agent_system_prompt
     
-    manager_agent = CodeAgent(
-        model=model,
-        tools=[research_tool],
-        max_steps=12,
-        verbosity_level=2,
-        planning_interval=4,
-        system_prompt=manager_agent_system_prompt,
-        additional_authorized_imports=AUTHORIZED_IMPORTS
-    )
-    
-    # manager_agent = ToolCallingAgent(
-    #     model=model,
-    #     tools=[research_tool],
-    #     max_steps=12,
-    #     verbosity_level=2,
-    #     planning_interval=4,
-    #     system_prompt=manager_agent_system_prompt
-    # )
+    agent_type = os.getenv('AGENT_TYPE', 'tool_calling').lower()
+
+    if agent_type == 'code':
+        manager_agent = CodeAgent(
+            model=model,
+            tools=[research_tool],
+            max_steps=12,
+            verbosity_level=2,
+            planning_interval=4,
+            system_prompt=manager_agent_system_prompt,
+            additional_authorized_imports=AUTHORIZED_IMPORTS
+        )
+    else:
+        manager_agent = ToolCallingAgent(
+            model=model,
+            tools=[research_tool],
+            max_steps=12,
+            verbosity_level=2,
+            planning_interval=4,
+            system_prompt=manager_agent_system_prompt
+        )
 
     answer = manager_agent.run(enhanced_query)
     print(f"Got this answer: {answer}")

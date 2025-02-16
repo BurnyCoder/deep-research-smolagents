@@ -28,7 +28,6 @@ def research_topic(query: str, breadth: int = 4, depth: int = 2) -> dict:
     """
     
     # Get environment variables
-    hf_token = os.getenv('HF_TOKEN')
     firecrawl_key = os.getenv('FIRECRAWL_KEY')
     context_size = os.getenv('CONTEXT_SIZE')
     openai_model = os.getenv('OPENAI_MODEL')
