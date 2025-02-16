@@ -55,7 +55,7 @@ To run smolagents deep research agent with deep reserach TS agent as a tool with
 python run_deep_research.py --questions --model-id "o3-mini" "Best practices to build AI agents" 
 ```
 - If you don't pass query in the parameter, it will prompt you to enter a question.
-- If you dont pass --question in the parameter, it will not ask clarifying questions.
+- If you dont pass --questions in the parameter, it will not ask clarifying questions.
 - If you don't pass --model-id in the parameter, it will use o3-mini as the model.
 
 To run deep research TS agent alone with optional parameters:
@@ -63,7 +63,7 @@ To run deep research TS agent alone with optional parameters:
 python run_deep_research_ts.py --questions --b 2 --d 2 "Best practices to build AI agents" 
 ```
 - If you don't pass query in the parameter, it will prompt you to enter a question.
-- If you dont pass --question in the parameter, it will not ask clarifying questions.
+- If you dont pass --questions in the parameter, it will not ask clarifying questions.
 - If you don't pass --b and --d (breadth and depth) in the parameter, it will use 2 and 2 as the default values.
 
 To run smolagents agents with serapi (smolagents's original open deep research agent):
