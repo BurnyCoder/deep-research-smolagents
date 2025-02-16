@@ -22,8 +22,8 @@ from smolagents import (
     ToolCallingAgent,
     ManagedAgent,
 )
-from smolagents_portkey_support import PortkeyModel
-from portkey_api import o3minihigh
+from scripts.smolagents_portkey_support import PortkeyModel
+from scripts.portkey_api import o3minihigh
 
 AUTHORIZED_IMPORTS = [
     "requests",

@@ -13,8 +13,8 @@ from smolagents import (
     tool,
     ToolCallingAgent
 )
-from smolagents_portkey_support import PortkeyModel
-from portkey_api import o3minihigh
+from scripts.smolagents_portkey_support import PortkeyModel
+from scripts.portkey_api import o3minihigh
 from run_deep_research_ts import research_topic
 # Get environment variables
 firecrawl_key = os.getenv('FIRECRAWL_KEY')

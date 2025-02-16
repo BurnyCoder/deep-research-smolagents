@@ -5,7 +5,7 @@ import threading
 
 from dotenv import load_dotenv
 from scripts.text_inspector_tool import TextInspectorTool
-from smolagents_portkey_support import PortkeyModel
+from scripts.smolagents_portkey_support import PortkeyModel
 from firecrawl import FirecrawlApp
 
 from smolagents import (
@@ -20,7 +20,7 @@ from smolagents.prompts import CODE_SYSTEM_PROMPT
 from smolagents import CodeAgent, DuckDuckGoSearchTool, tool
 import os
 from firecrawl import FirecrawlApp
-from portkey_api import o3minihigh
+from scripts.portkey_api import o3minihigh
 
 
 AUTHORIZED_IMPORTS = [

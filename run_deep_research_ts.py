@@ -5,7 +5,7 @@ import argparse
 from typing import Dict, Any
 
 from dotenv import load_dotenv
-from portkey_api import o3minihigh
+from scripts.portkey_api import o3minihigh
 
 # Load environment variables
 load_dotenv()
