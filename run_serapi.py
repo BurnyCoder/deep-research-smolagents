@@ -15,6 +15,7 @@ from scripts.text_web_browser import (
     VisitTool,
 )
 from smolagents.prompts import CODE_SYSTEM_PROMPT
+from scripts.visual_qa import visualizer
 
 from smolagents import (
     CodeAgent,
@@ -190,7 +191,7 @@ def main():
     if agent_type == 'code':
         manager_agent = CodeAgent(
             model=model,
-            tools=[],#[visualizer, document_inspection_tool],
+            tools=[visualizer, document_inspection_tool],
             max_steps=12,
             verbosity_level=2,
             additional_authorized_imports=AUTHORIZED_IMPORTS,
@@ -201,7 +202,7 @@ def main():
     else:
         manager_agent = ToolCallingAgent(
             model=model,
-            tools=[],#[visualizer, document_inspection_tool],
+            tools=[visualizer, document_inspection_tool],
             max_steps=12,
             verbosity_level=2,
             planning_interval=4,

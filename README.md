@@ -66,7 +66,7 @@ python run_deep_research_ts.py --questions --b 2 --d 2 "Best practices to build 
 - If you dont pass --question in the parameter, it will not ask clarifying questions.
 - If you don't pass --b and --d (breadth and depth) in the parameter, it will use 2 and 2 as the default values.
 
-To run smolagents agents with serapi:
+To run smolagents agents with serapi (smolagents's original open deep research agent):
 ```bash
 python run_serapi.py --questions --model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
 ```
