@@ -5,6 +5,7 @@ import argparse
 from typing import Dict, Any
 
 from dotenv import load_dotenv
+from portkey_api import o3minihigh
 
 # Load environment variables
 load_dotenv()
@@ -85,41 +86,72 @@ def research_topic(query: str, breadth: int = 4, depth: int = 2) -> dict:
             stderr = process.stderr.read()
             raise subprocess.CalledProcessError(return_code, ['tsx', '--env-file=.env', 'src/run.ts', query, str(breadth), str(depth)], stderr=stderr)
         
-        # Join all output lines and return as a dictionary
-        complete_output = '\n'.join(full_output)
+        # # Join all output lines and return as a dictionary
+        # complete_output = '\n'.join(full_output)
+        # try:
+        #     # Try to parse as JSON if the output is in JSON format
+        #     parsed_output = json.loads(complete_output)
+        #     print("Parsed JSON output:", parsed_output)
+            
+        #     # Print contents of output.md if it exists
+        #     try:
+        #         with open('output.md', 'r') as f:
+        #             print("\nOutput.md contents:")
+        #             print(f.read())
+        #     except FileNotFoundError:
+        #         print("\noutput.md file not found")
+                
+        #     return parsed_output
+        # except json.JSONDecodeError:
+        #     # If not JSON, return as string in a dictionary
+        #     output_dict = {"output": complete_output}
+        #     print("String output:", output_dict)
+            
+        #     # Print contents of output.md if it exists
+        #     try:
+        #         with open('output.md', 'r') as f:
+        #             print("\nOutput.md contents:")
+        #             print(f.read())
+        #     except FileNotFoundError:
+        #         print("\noutput.md file not found")
+                
+        #     return output_dict
+        
+                # Read and return contents of output.md
         try:
-            # Try to parse as JSON if the output is in JSON format
-            parsed_output = json.loads(complete_output)
-            print("Parsed JSON output:", parsed_output)
-            
-            # Print contents of output.md if it exists
-            try:
-                with open('output.md', 'r') as f:
-                    print("\nOutput.md contents:")
-                    print(f.read())
-            except FileNotFoundError:
-                print("\noutput.md file not found")
-                
-            return parsed_output
-        except json.JSONDecodeError:
-            # If not JSON, return as string in a dictionary
-            output_dict = {"output": complete_output}
-            print("String output:", output_dict)
-            
-            # Print contents of output.md if it exists
-            try:
-                with open('output.md', 'r') as f:
-                    print("\nOutput.md contents:")
-                    print(f.read())
-            except FileNotFoundError:
-                print("\noutput.md file not found")
-                
-            return output_dict
+            with open('output.md', 'r') as f:
+                output_contents = f.read()
+            return {"output": output_contents}
+        except FileNotFoundError:
+            return {"error": "output.md file not found"}
             
     except subprocess.CalledProcessError as e:
         print(f"Error running research: {e}")
         print(f"stderr: {e.stderr}")
         return {"error": str(e), "stderr": e.stderr}
+
+def ask_clarifying_questions(query: str) -> list:
+    """
+    Generates clarifying questions for the given research query using the model.
+    
+    Args:
+        query (str): The research query/topic
+        
+    Returns:
+        list: A list of clarifying questions
+    """
+    clarifying_prompt = f"""
+Given this research query, what clarifying questions would you ask to better understand the requirements?
+Please respond with a JSON array containing 3 key questions that would help clarify any ambiguities.
+Format the response as: ["question 1", "question 2", "question 3"]
+
+Query:
+{query}
+"""
+    
+    questions_json = o3minihigh(clarifying_prompt)
+    questions = json.loads(questions_json)
+    return questions
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -127,16 +159,38 @@ def parse_args():
         "question",
         type=str,
         nargs='?',
-        default="What is the best AI agent building practices?",
+        default=None,
         help="Research query/topic"
     )
     parser.add_argument("--model-id", type=str, default="o3-mini")
-    parser.add_argument("--b", type=int, default=4, help="Research breadth (3-10)")
+    parser.add_argument("--b", type=int, default=2, help="Research breadth (3-10)")
     parser.add_argument("--d", type=int, default=2, help="Research depth (1-5)")
+    parser.add_argument("--questions", action="store_true", help="Enable clarifying questions")
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
-    results = research_topic(args.question, args.b, args.d)
     
+    # Prompt user for research query
+    if not args.question:
+        query = input("\nEnter your research query: ").strip()
+    else:
+        query = args.question
+        print(f"Using query: {query}")
+
+    enhanced_query = query
+    if args.questions:
+        # First, get clarifying questions
+        print("\nGenerating clarifying questions...\n")
+        questions = ask_clarifying_questions(query)
+        
+        # Ask user to answer each question
+        enhanced_query = query + "\n\nAdditional context from clarifying questions:"
+        for i, question in enumerate(questions, 1):
+            print(f"\n{i}. {question}")
+            answer = input(f"\nYour answer to question {i}: ").strip()
+            enhanced_query += f"\nQ: {question}\nA: {answer}"
+        
+        print("\nEnhanced query with clarifying answers:", enhanced_query)
     
+    results = research_topic(enhanced_query, args.b, args.d)

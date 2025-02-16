@@ -43,24 +43,36 @@ npm install
 
 ## Running the agent
 
-To run smolagents agent with deep research ts agent:
+Parameters Explained:
+- `--model-id`: Specifies which AI model to use (e.g., "o3-mini", "claude-3-5-sonnet-latest")
+- `--questions`: When included, enables interactive clarifying questions mode where the agent will ask questions to better understand your research query
+- `--b`: Research breadth parameter (range: 3-10, default: 4)
+- `--d`: Research depth parameter (range: 1-5, default: 2)
 
+To run smolagents deep research agent with deep reserach TS agent as a tool with optional parameters:
 ```bash
-python run_deep_research.py --model-id "o3-mini" "Best practices to build AI agents"
+python run_deep_research.py --questions --model-id "o3-mini" "Best practices to build AI agents" 
 ```
+- If you don't pass query in the parameter, it will prompt you to enter a question.
+- If you dont pass --question in the parameter, it will not ask clarifying questions.
+- If you don't pass --model-id in the parameter, it will use o3-mini as the model.
 
-To run deep research ts agent on its own:
+To run deep research TS agent alone with optional parameters:
 ```bash
-python run_deep_research_ts.py "Best practices to build AI agents" --model-id "o3-mini" --b 2 --d 2
+python run_deep_research_ts.py --questions --b 2 --d 2 "Best practices to build AI agents" 
 ```
+- If you don't pass query in the parameter, it will prompt you to enter a question.
+- If you dont pass --question in the parameter, it will not ask clarifying questions.
+- If you don't pass --b and --d (breadth and depth) in the parameter, it will use 2 and 2 as the default values.
 
 To run smolagents agents with serapi:
 ```bash
 python run_serapi.py --model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
 ```
+- Here you have to pass the query in the parameter.
 
 To run smolagents agents with firecrawl:
 ```bash
 python run_firecrawl.py --model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
 ```
-
+- Here you have to pass the query in the parameter.
