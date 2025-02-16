@@ -11,7 +11,7 @@ from smolagents.prompts import CODE_SYSTEM_PROMPT
 from smolagents import (
     CodeAgent,
     tool,
-    Tool
+    ToolCallingAgent
 )
 from smolagents_portkey_support import PortkeyModel
 from portkey_api import o3minihigh
@@ -188,6 +188,15 @@ def main():
         system_prompt=manager_agent_system_prompt,
         additional_authorized_imports=AUTHORIZED_IMPORTS
     )
+    
+    # manager_agent = ToolCallingAgent(
+    #     model=model,
+    #     tools=[research_tool],
+    #     max_steps=12,
+    #     verbosity_level=2,
+    #     planning_interval=4,
+    #     system_prompt=manager_agent_system_prompt
+    # )
 
     answer = manager_agent.run(enhanced_query)
     print(f"Got this answer: {answer}")
