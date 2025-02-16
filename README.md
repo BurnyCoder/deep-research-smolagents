@@ -73,5 +73,5 @@ python run_serapi.py --questions --model-id "claude-3-5-sonnet-latest" "Best pra
 
 To run smolagents agents with firecrawl:
 ```bash
-python run_firecrawl.py --questions--model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
+python run_firecrawl.py --questions --model-id "claude-3-5-sonnet-latest" "Best practices to build AI agents"
 ```

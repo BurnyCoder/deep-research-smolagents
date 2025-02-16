@@ -3,7 +3,6 @@ import os
 import threading
 
 from dotenv import load_dotenv
-from huggingface_hub import login
 from scripts.text_inspector_tool import TextInspectorTool
 from scripts.text_web_browser import (
     ArchiveSearchTool,
@@ -15,13 +14,10 @@ from scripts.text_web_browser import (
     SimpleTextBrowser,
     VisitTool,
 )
-from scripts.visual_qa import visualizer
 from smolagents.prompts import CODE_SYSTEM_PROMPT
 
 from smolagents import (
     CodeAgent,
-    # HfApiModel,
-    LiteLLMModel,
     ToolCallingAgent,
     ManagedAgent,
 )
@@ -213,7 +209,7 @@ def main():
             system_prompt=manager_agent_system_prompt
         )
 
-    answer = manager_agent.run(args.question)
+    answer = manager_agent.run(enhanced_query)
     print(f"Got this answer: {answer}")
 
 

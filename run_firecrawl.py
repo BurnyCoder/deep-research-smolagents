@@ -4,16 +4,12 @@ import os
 import threading
 
 from dotenv import load_dotenv
-from huggingface_hub import login
 from scripts.text_inspector_tool import TextInspectorTool
-from scripts.visual_qa import visualizer
 from smolagents_portkey_support import PortkeyModel
 from firecrawl import FirecrawlApp
 
 from smolagents import (
     CodeAgent,
-    # HfApiModel,
-    LiteLLMModel,
     ToolCallingAgent,
     ManagedAgent,
     DuckDuckGoSearchTool
@@ -21,12 +17,9 @@ from smolagents import (
 
 from smolagents.prompts import CODE_SYSTEM_PROMPT
 
-from smolagents import CodeAgent, DuckDuckGoSearchTool, LiteLLMModel, tool
-from litellm import completion
+from smolagents import CodeAgent, DuckDuckGoSearchTool, tool
 import os
 from firecrawl import FirecrawlApp
-from pydantic import BaseModel
-from typing import Any, Optional, List
 from portkey_api import o3minihigh
 
 
@@ -268,7 +261,7 @@ def main():
             system_prompt=manager_agent_system_prompt
         )
 
-    answer = manager_agent.run(args.question)
+    answer = manager_agent.run(enhanced_query)
     print(f"Got this answer: {answer}")
 
 
